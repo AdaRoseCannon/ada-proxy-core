@@ -23,7 +23,8 @@ proxy.on('error', function (err, req, res) {
     'Content-Type': 'text/plain'
   });
   
-  res.end('Something went wrong. And we are reporting a custom error message.');
+  res.end('Something went wrong. And we are reporting a custom error message.\n');
+  console.log(err);
 });
 
 var jobsArray = require('./jobs.json');
@@ -36,7 +37,7 @@ for (var i=0;i<jobsLength;i++) {
 
 var server = http.createServer(function(req, res) {
 	
-	console.log(req.headers.host);
+	// console.log(req.headers.host);
 
 	if (req.headers.host.match(/^githooks/i)) {
 		console.log('github webhook redirect');
