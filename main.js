@@ -23,20 +23,27 @@ for (var i=0;i<jobsLength;i++) {
 }
 
 var server = http.createServer(function(req, res) {
+	
+	console.log(req.headers.host);
+
+	if (req.headers.host.match(/^http://githooks/i)) {
+		console.log('github webhook redirect');
+	}
+
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
 		if (req.headers.host.match(new RegExp(item.pattern))) {
-			proxy.web(req, res, { target: item.target });
+                        console.log('redirecting to:', item.target);
+			proxy.web(req, res,{ target: item.target });
 			break;
 		}
-		console.log(req.headers.host, '\n redirecting to:', item.target);
 	}
 });
 
 console.log("listening on port ", port);
 server.listen(port);
 
-var gith = require( 'gith' ).create( 9001 );
+var gith = require( 'gith' ).create( port + 1 );
  
 gith().on( 'all', function( payload ) {
   console.log(payload);
