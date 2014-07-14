@@ -15,7 +15,7 @@ if(!!~p && process.argv[p+1]) {
 
 PORT = parseInt(PORT);
 var GITH_PORT = PORT + 1;
-
+var GITH_TARGET = "127.0.0.1:" + GITH_PORT;
 var proxy = httpProxy.createProxyServer({});
 
 proxy.on('error', function (err, req, res) {
@@ -40,7 +40,7 @@ var server = http.createServer(function(req, res) {
 
 	if (req.headers.host.match(/^githooks/i)) {
 		console.log('github webhook redirect');
-		proxy.web(req, res,{ target: "http://127.0.0.1:" + GITH_PORT });
+		proxy.web(req, res,{ target: GITH_TARGET });
 	}
 
 	for (var i=0;i<jobsLength;i++) {
