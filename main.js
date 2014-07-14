@@ -29,8 +29,8 @@ var server = http.createServer(function(req, res) {
 			proxy.web(req, res, { target: item.target });
 			break;
 		}
+		console.log(req.headers.host, '\n redirecting to:', item.target);
 	}
-	console.log(req.headers.host);
 });
 
 console.log("listening on port ", port);
