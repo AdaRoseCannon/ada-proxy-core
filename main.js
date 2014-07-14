@@ -4,7 +4,7 @@ var http = require('http'),
 var proxy = httpProxy.createProxyServer({});
 
 var server = require('http').createServer(function(req, res) {
-  console.log('Connection');
+  console.log(JSON.parse(req, null, ' '));
   proxy.web(req, res, { target: 'http://127.0.0.1:9000' });
 });
 
