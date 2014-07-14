@@ -1,7 +1,10 @@
+[
 {
 	"name": "ada.is - main website",
 	"folder": "/home/ada/gitWorkingDir/ada.is",
 	"command": ".",
-	"options": "",
-	"pattern": ".*"
+	"options": "-p",
+	"pattern": ".*",
+	"target": "http://127.0.0.1:9000"
 }
+]

@@ -1,12 +1,17 @@
-var http = require('http'),
-    httpProxy = require('http-proxy');
+'use strict';
 
-var proxy = httpProxy.createProxyServer({});
+var forever = require('forever');
 
-var server = require('http').createServer(function(req, res) {
-  console.log(JSON.parse(req, null, ' '));
-  proxy.web(req, res, { target: 'http://127.0.0.1:9000' });
-});
+forever.start('./proxy.js', {});
 
-console.log("listening on port 8080")
-server.listen(8080);
+setTimeout(function () {
+	forever.list(true, function () {
+		console.log(arguments);
+	});
+}, 2000);
+
+
+setTimeout(function () {
+	console.log('finishing');
+	forever.stopAll();
+}, 5000);
