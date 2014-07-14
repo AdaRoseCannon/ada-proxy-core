@@ -32,7 +32,7 @@ var server = http.createServer(function(req, res) {
 
 	if (req.headers.host.match(/^githooks/i)) {
 		console.log('github webhook redirect');
-		proxy.web(req, res,{ target: "http://localhost:" + GITH_PORT });
+		proxy.web(req, res,{ target: "http://127.0.0.1:" + GITH_PORT });
 	}
 
 	for (var i=0;i<jobsLength;i++) {
