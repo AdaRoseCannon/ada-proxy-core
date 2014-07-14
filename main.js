@@ -27,7 +27,7 @@ var server = http.createServer(function(req, res) {
 		var item = jobsArray[i];
 		if (req.headers.host.match(new RegExp(item.pattern))) {
 			proxy.web(req, res, { target: item.target });
-			continue;
+			break;
 		}
 	}
 	console.log(req.headers.host);
