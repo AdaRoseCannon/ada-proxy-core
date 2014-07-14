@@ -59,7 +59,6 @@ server.listen(PORT);
 var gith = require( 'gith' ).create( GITH_PORT );
 
 console.log("Githooks listening on PORT ", GITH_PORT);
-console.log(gith);
 gith({}).on( 'all', function( payload ) {
 	console.log("payload recieved", payload);
 });
