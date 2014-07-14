@@ -1,17 +1,43 @@
 'use strict';
 
-var forever = require('forever');
+var http = require('http'),
+    httpProxy = require('http-proxy'),
+	options = require('./options.json'),
+	forever = require('forever');
+	gith = require('gith');
 
-forever.start('./proxy.js', {});
+var port = options.port || 8080;
+var p=process.argv.indexOf('-p');
+if(!!~p && process.argv[p+1]) {
+	port = process.argv[p+1];
+}
 
-setTimeout(function () {
-	forever.list(true, function () {
-		console.log(arguments);
-	});
-}, 2000);
+var proxy = httpProxy.createProxyServer({});
 
+var jobsArray = require('./jobs.json');
+var jobsLength = jobsArray.length;
 
-setTimeout(function () {
-	console.log('finishing');
-	forever.stopAll();
-}, 5000);
+for (var i=0;i<jobsLength;i++) {
+	var item = jobsArray[i];
+	forever.startDaemon(item.app);
+}
+
+var server = http.createServer(function(req, res) {
+	for (var i=0;i<jobsLength;i++) {
+		var item = jobsArray[i];
+		if (req.headers.host.match(new RegExp(item.pattern))) {
+			proxy.web(req, res, { target: item.target });
+			continue;
+		}
+	}
+	console.log(req.headers.host);
+});
+
+console.log("listening on port ", port);
+server.listen(port);
+
+var gith = require( 'gith' ).create( 9001 );
+ 
+gith().on( 'all', function( payload ) {
+  console.log(payload);
+});
