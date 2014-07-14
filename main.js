@@ -26,7 +26,7 @@ var server = http.createServer(function(req, res) {
 	
 	console.log(req.headers.host);
 
-	if (req.headers.host.match(/^http://githooks/i)) {
+	if (req.headers.host.match(/^githooks/i)) {
 		console.log('github webhook redirect');
 	}
 
