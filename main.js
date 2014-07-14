@@ -18,6 +18,14 @@ var GITH_PORT = PORT + 1;
 
 var proxy = httpProxy.createProxyServer({});
 
+proxy.on('error', function (err, req, res) {
+  res.writeHead(500, {
+    'Content-Type': 'text/plain'
+  });
+  
+  res.end('Something went wrong. And we are reporting a custom error message.');
+});
+
 var jobsArray = require('./jobs.json');
 var jobsLength = jobsArray.length;
 
@@ -51,7 +59,7 @@ server.listen(PORT);
 var gith = require( 'gith' ).create( GITH_PORT );
 
 console.log("Githooks listening on PORT ", GITH_PORT);
-
+console.log(gith);
 gith().on( 'all', function( payload ) {
-  console.log(payload);
+	console.log(payload);
 });
