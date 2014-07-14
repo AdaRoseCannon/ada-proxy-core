@@ -12,6 +12,8 @@ if(!!~p && process.argv[p+1]) {
 	PORT = process.argv[p+1];
 }
 
+
+PORT = parseInt(PORT);
 var GITH_PORT = PORT + 1;
 
 var proxy = httpProxy.createProxyServer({});
