@@ -56,5 +56,11 @@ var server = http.createServer(function(req, res) {
 	}
 });
 
+handler.on('push', function (event) {
+  console.log('Received a push event for %s to %s',
+    event.payload.repository.name,
+    event.payload.ref);
+});
+
 console.log("listening on PORT ", PORT);
 server.listen(PORT);
