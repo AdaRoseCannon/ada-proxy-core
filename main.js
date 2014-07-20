@@ -28,7 +28,6 @@ proxy.on('error', function (err, req, res) {
 
 var jobsArray = require('./jobs.json');
 var jobsLength = jobsArray.length;
-var content = {};
 
 for (var i=0;i<jobsLength;i++) {
 	var item = jobsArray[i];
@@ -60,8 +59,7 @@ var server = http.createServer(function(req, res) {
 	res.writeHead(500, {
 		'Content-Type': 'text/plain'
 	});
-	res.write(JSON.stringify(content));
-	res.end('');
+	res.end('No matching routes.');
 
 });
 
@@ -70,7 +68,6 @@ handler.on('push', function (event) {
 	event.payload.repository.name,
 	event.payload.ref);
 	console.log(event.payload.pusher.modified);
-	content = event.payload;
 });
 
 console.log("listening on PORT ", PORT);
