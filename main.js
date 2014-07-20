@@ -28,6 +28,7 @@ proxy.on('error', function (err, req, res) {
 
 var jobsArray = require('./jobs.json');
 var jobsLength = jobsArray.length;
+var content = {};
 
 for (var i=0;i<jobsLength;i++) {
 	var item = jobsArray[i];
@@ -44,6 +45,7 @@ var server = http.createServer(function(req, res) {
 			res.statusCode = 404;
 			res.end('no such location');
   		});	
+		return;
 	}
 
 	for (var i=0;i<jobsLength;i++) {
@@ -51,17 +53,26 @@ var server = http.createServer(function(req, res) {
 		if (req.headers.host.match(new RegExp(item.pattern))) {
 			console.log('redirecting to:', item.target);
 			proxy.web(req, res,{ target: item.target });
-			break;
+			return;
 		}
 	}
+
+	res.writeHead(500, {
+		'Content-Type': 'text/plain'
+	});
+	res.write(JSON.stringify(content));
+	res.end('');
+
 });
 
 handler.on('push', function (event) {
 	console.log('Received a push event for %s to %s',
 	event.payload.repository.name,
 	event.payload.ref);
-	console.log(event.payload);
+	console.log(event.payload.pusher.modified);
+	content = event.payload;
 });
 
 console.log("listening on PORT ", PORT);
 server.listen(PORT);
+
