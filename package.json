@@ -11,7 +11,7 @@
   "dependencies": {
     "http-proxy": "^1.1.5",
     "forever": "~0.11.1",
-    "gith": "~1.0.4"
+    "github-webhook-handler": "~0.2.1"
   },
   "devDependencies": {},
   "repository": {

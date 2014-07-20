@@ -3,8 +3,9 @@
 var http = require('http'),
     httpProxy = require('http-proxy'),
 	options = require('./options.json'),
-	forever = require('forever');
-	gith = require('gith');
+	forever = require('forever'),
+	createHandler = require('github-webhook-handler'),
+	handler = createHandler({ path: '/', secret: require('./secret') });
 
 var PORT = options.port || 8080;
 var p=process.argv.indexOf('-p');
@@ -14,8 +15,6 @@ if(!!~p && process.argv[p+1]) {
 
 
 PORT = parseInt(PORT);
-var GITH_PORT = PORT + 1;
-var GITH_TARGET = "127.0.0.1:" + GITH_PORT;
 var proxy = httpProxy.createProxyServer({});
 
 proxy.on('error', function (err, req, res) {
@@ -40,8 +39,11 @@ var server = http.createServer(function(req, res) {
 	// console.log(req.headers.host);
 
 	if (req.headers.host.match(/^githooks/i)) {
-		console.log('github webhook redirect');
-		proxy.web(req, res,{ target: GITH_TARGET });
+		console.log('github webhook redirect', req.url);
+		handler(req, res, function (err) {
+			res.statusCode = 404;
+			res.end('no such location');
+  		});	
 	}
 
 	for (var i=0;i<jobsLength;i++) {
@@ -56,10 +58,3 @@ var server = http.createServer(function(req, res) {
 
 console.log("listening on PORT ", PORT);
 server.listen(PORT);
-
-var gith = require( 'gith' ).create( GITH_PORT );
-
-console.log("Githooks listening on PORT ", GITH_PORT);
-gith({}).on( 'all', function( payload ) {
-	console.log("payload recieved", payload);
-});
