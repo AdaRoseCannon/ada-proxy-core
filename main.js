@@ -26,12 +26,15 @@ proxy.on('error', function (err, req, res) {
 });
 
 var jobsArray = require('./jobs.json');
-var jobsLength = jobsArray.length;
 
-for (var i=0;i<jobsLength;i++) {
-	var item = jobsArray[i];
-	forever.startDaemon(item.app);
+function init() {
+	var jobsLength = jobsArray.length;
+	for (var i=0;i<jobsLength;i++) {
+		var item = jobsArray[i];
+		forever.startDaemon(item.app);
+	}
 }
+init();
 
 var server = http.createServer(function(req, res) {
 	
@@ -45,6 +48,7 @@ var server = http.createServer(function(req, res) {
 		return;
 	}
 
+	var jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
 		if (req.headers.host.match(new RegExp(item.pattern))) {
@@ -104,6 +108,7 @@ handler.on('push', function (event) {
 					// Update the jobs
 					jobsArray = require('./jobs.json');
 					console.log('soft reset');
+					init();
 				}
 			});
 		}
