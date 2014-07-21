@@ -72,9 +72,7 @@ handler.on('push', function (event) {
 			var softReloadRequired = false;
 			for (var i=commits.length;i--;) {
 				var item = commits[i];
-				if (!item.added.length && !item.removed.length) {
-					console.log(item.added, !item.added.length, item.removed, !item.removed.length, item.modified);
-					console.log(!item.added.length && !item.removed.length, 'so setting har reload to true');
+				if (!!item.added.length || !!item.removed.length) {
 					hardReloadRequired = true;
 					break;
 				}
