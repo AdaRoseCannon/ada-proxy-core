@@ -73,6 +73,7 @@ handler.on('push', function (event) {
 			for (var i=commits.length;i--;) {
 				var item = commits[i];
 				if (!item.added.length || !item.removed.length) {
+					console.log(item.added, item.removed, item.modified);
 					hardReloadRequired = true;
 					break;
 				}
