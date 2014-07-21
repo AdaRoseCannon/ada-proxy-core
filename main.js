@@ -73,12 +73,14 @@ handler.on('push', function (event) {
 			for (var i=commits.length;i--;) {
 				var item = commits[i];
 				if (!item.added.length || !item.removed.length) {
-					console.log(item.added, item.removed, item.modified);
+					console.log(item.added, !item.added.length, item.removed, !item.removed.length, item.modified);
 					hardReloadRequired = true;
 					break;
 				}
 				if (item.modified.length === 1 && item.modified[0] === 'jobs.json') {
 					softReloadRequired = true;
+				} else {
+					hardReloadRequired = true;
 				}
 			}
 			// It needs to update itself
