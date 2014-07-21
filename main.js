@@ -5,8 +5,7 @@ var http = require('http'),
 	options = require('./options.json'),
 	forever = require('forever'),
 	createHandler = require('github-webhook-handler'),
-	handler = createHandler({ path: '/', secret: require('./secret') }),
-	gitClone = require("./git-clone");
+	handler = createHandler({ path: '/', secret: require('./secret') });
 
 var PORT = options.port || 8080;
 var p=process.argv.indexOf('-p');
@@ -96,12 +95,14 @@ handler.on('push', function (event) {
 				if (hardReloadRequired) {
 
 					// Shutdown the process so that forever brings it back up.
+					console.log('hard reset');
 					process.exit();
 				}
 				if (softReloadRequired) {
 
 					// Update the jobs
 					jobsArray = require('./jobs.json');
+					console.log('soft reset');
 				}
 			});
 		}
