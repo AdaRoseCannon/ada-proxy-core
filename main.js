@@ -85,7 +85,6 @@ handler.on('push', function (event) {
 			// It needs to update itself
 			// Update git in place
 
-
 			var git = require('gift');
 			var repo = git(process.cwd());
 			repo.sync(function (err) {
