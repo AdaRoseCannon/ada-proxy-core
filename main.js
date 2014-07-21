@@ -5,14 +5,14 @@ var http = require('http'),
 	options = require('./options.json'),
 	forever = require('forever'),
 	createHandler = require('github-webhook-handler'),
-	handler = createHandler({ path: '/', secret: require('./secret') });
+	handler = createHandler({ path: '/', secret: require('./secret') }),
+	gitClone = require("./git-clone");
 
 var PORT = options.port || 8080;
 var p=process.argv.indexOf('-p');
 if(!!~p && process.argv[p+1]) {
 	PORT = process.argv[p+1];
 }
-
 
 PORT = parseInt(PORT);
 var proxy = httpProxy.createProxyServer({});
@@ -39,7 +39,6 @@ var server = http.createServer(function(req, res) {
 	// console.log(req.headers.host);
 
 	if (req.headers.host.match(/^githooks/i)) {
-		console.log('github webhook redirect', req.url);
 		handler(req, res, function (err) {
 			res.statusCode = 404;
 			res.end('no such location');
@@ -64,12 +63,54 @@ var server = http.createServer(function(req, res) {
 });
 
 handler.on('push', function (event) {
-	console.log('Received a push event for %s to %s',
-	event.payload.repository.name,
-	event.payload.ref);
-	console.log(event.payload.pusher.modified);
+
+	console.log('Received a push event for %s to %s', event.payload.repository.name, event.payload.ref);
+	if (event.payload.repository.url === "https://github.com/AdaRoseEdwards/ada-proxy") {
+		if (event.payload.ref === "refs/heads/master") {
+
+			var commits = event.payload.commits;
+			var hardReloadRequired = false;
+			var softReloadRequired = false;
+			for (var i=commits.length;i--;) {
+				var item = commits[i];
+				if (!item.added.length || !item.removed.length) {
+					hardReloadRequired = true;
+					break;
+				}
+				if (item.modified.length === 1 && item.modified[0] === 'jobs.json') {
+					softReloadRequired = true;
+				}
+			}
+			// It needs to update itself
+			// Update git in place
+
+
+			var git = require('gift');
+			var repo = git(process.cwd());
+			repo.sync(function (err) {
+				if (err) {
+					console.log (err);
+					return;
+				}
+
+				if (hardReloadRequired) {
+
+					// Shutdown the process so that forever brings it back up.
+					process.exit();
+				}
+				if (softReloadRequired) {
+
+					// Update the jobs
+					jobsArray = require('./jobs.json');
+				}
+			});
+		}
+	} else {
+
+		// It needs to update one of the programs being run by forever
+		console.log('');
+	}
 });
 
 console.log("listening on PORT ", PORT);
 server.listen(PORT);
-
