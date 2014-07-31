@@ -87,7 +87,7 @@ var server = http.createServer(function(req, res) {
 
 	console.log("incoming request:", testPath);
 
-	if (testPath.match(/^githooks/i)) {
+	if (testPath.match(/^http:\/\/githooks/i)) {
 		handler(req, res, function (err) {
 			res.statusCode = 404;
 			res.end('no such location');
