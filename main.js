@@ -1,22 +1,25 @@
 'use strict';
 
-var http = require('http'),
-    httpProxy = require('http-proxy'),
-	options = require('./options.json'),
-	forever = require('forever'),
-	createHandler = require('github-webhook-handler'),
-	handler = createHandler({ path: '/', secret: require('./secret') });
+/**
+ * Dependencies.
+ */
 
+var http = require('http');
+var httpProxy = require('http-proxy');
+var options = require('./options.json');
+var forever = require('forever');
+var fs = require('fs');
+var createHandler = require('github-webhook-handler');
+
+/**
+ * Local Variables
+ */
+
+var handler = createHandler({ path: '/', secret: require('./secret') });
+var jobsArray = require('./jobs.json');
 var PORT = options.port || 8080;
-var p=process.argv.indexOf('-p');
-if(!!~p && process.argv[p+1]) {
-	PORT = process.argv[p+1];
-}
-
-PORT = parseInt(PORT);
-var proxy = httpProxy.createProxyServer({});
-
-proxy.on('error', function (err, req, res) {
+var HTTPS_PORT = options.https_port || 8443;
+var proxy = httpProxy.createProxyServer({}).on('error', function (err, req, res) {
   res.writeHead(500, {
     'Content-Type': 'text/plain'
   });
@@ -25,20 +28,59 @@ proxy.on('error', function (err, req, res) {
   console.log(err);
 });
 
-var jobsArray = require('./jobs.json');
+/*
+var httpsProxy = httpProxy.createServer({
+  ssl: {
+    key: fs.readFileSync('valid-ssl-key.pem', 'utf8'),
+    cert: fs.readFileSync('valid-ssl-cert.pem', 'utf8')
+  },
+  secure: true // Depends on your needs, could be false.
+}).on('error', function (err, req, res) {
+  res.writeHead(500, {
+    'Content-Type': 'text/plain'
+  });
+  
+  res.end('Something went wrong. And we are reporting a custom error message.\n');
+  console.log(err);
+});
+*/
+
+/**
+ * Process the args in this Immediately-Invoked Function Expression
+ * To avoid cluttering the global scope
+ */
+
+(function () {
+	var p=process.argv.indexOf('-p');
+	if(!!~p && process.argv[p+1]) {
+		PORT = process.argv[p+1];
+	}
+
+	var s=process.argv.indexOf('-s');
+	if(!!~s && process.argv[s+1]) {
+		HTTPS_PORT = process.argv[s+1];
+	}
+
+	HTTPS_PORT = parseInt(HTTPS_PORT);
+	PORT = parseInt(PORT);
+})();
 
 function init() {
 	var jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
-		forever.startDaemon(item.app);
+		forever.start(item.app);
 	}
 }
 init();
 
+
+/**
+ * Handle http redirects and proxy
+ */
 var server = http.createServer(function(req, res) {
 	
-	// console.log(req.headers.host);
+	console.log("incoming request:", req.headers.host);
 
 	if (req.headers.host.match(/^githooks/i)) {
 		handler(req, res, function (err) {
@@ -52,9 +94,17 @@ var server = http.createServer(function(req, res) {
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
 		if (req.headers.host.match(new RegExp(item.pattern))) {
-			console.log('redirecting to:', item.target);
-			proxy.web(req, res,{ target: item.target });
-			return;
+
+			if (item.type === 'redirect') {
+				console.log('redirecting to:', item.target);
+				res.redirect(item.target);
+			}
+
+			if (item.type === 'proxy') {
+				console.log('routing to:', item.target);
+				proxy.web(req, res,{ target: item.target });
+				return;
+			}
 		}
 	}
 
@@ -63,8 +113,13 @@ var server = http.createServer(function(req, res) {
 	});
 	res.end('No matching routes.');
 
-});
+}).listen(PORT);
 
+console.log("listening for http on PORT ", PORT);
+
+/**
+ * Handle self upgrades.
+ */
 handler.on('push', function (event) {
 
 	console.log('Received a push event for %s to %s', event.payload.repository.name, event.payload.ref);
@@ -118,6 +173,3 @@ handler.on('push', function (event) {
 		console.log('');
 	}
 });
-
-console.log("listening on PORT ", PORT);
-server.listen(PORT);
