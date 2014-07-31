@@ -5,6 +5,7 @@
  */
 
 var http = require('http');
+var https = require('https');
 var httpProxy = require('http-proxy');
 var options = require('./options.json');
 var fs = require('fs');
@@ -19,30 +20,34 @@ var jobsArray = require('./jobs.json');
 var PORT = options.port || 8080;
 var HTTPS_PORT = options.https_port || 8443;
 var proxy = httpProxy.createProxyServer({}).on('error', function (err, req, res) {
-  res.writeHead(500, {
-    'Content-Type': 'text/plain'
-  });
-  
-  res.end('Something went wrong. And we are reporting a custom error message.\n');
-  console.log(err);
+	res.writeHead(500, {
+		'Content-Type': 'text/plain'
+	});
+	
+	res.end('Something went wrong. And we are reporting a custom error message.\n');
+	console.log(err);
 });
 
-/*
+var sslOptions = {
+	key: fs.readFileSync('/home/ada/gitWorkingDir/ft-ada/keys/server.key'),
+	cert: fs.readFileSync('/home/ada/gitWorkingDir/ft-ada/keys/server.crt'),
+	ca: fs.readFileSync('/home/ada/gitWorkingDir/ft-ada/keys/server.csr'),
+};
+
 var httpsProxy = httpProxy.createServer({
-  ssl: {
-    key: fs.readFileSync('valid-ssl-key.pem', 'utf8'),
-    cert: fs.readFileSync('valid-ssl-cert.pem', 'utf8')
-  },
-  secure: true // Depends on your needs, could be false.
+	ssl: sslOptions,
+
+	// SPDY-specific options
+	windowSize: 1024, // Server's window size
+	secure: true // Depends on your needs, could be false.
 }).on('error', function (err, req, res) {
-  res.writeHead(500, {
-    'Content-Type': 'text/plain'
-  });
-  
-  res.end('Something went wrong. And we are reporting a custom error message.\n');
-  console.log(err);
+	res.writeHead(500, {
+		'Content-Type': 'text/plain'
+	});
+	
+	res.end('Something went wrong. And we are reporting a custom error message.\n');
+	console.log(err);
 });
-*/
 
 /**
  * Process the args in this Immediately-Invoked Function Expression
@@ -84,13 +89,16 @@ var server = http.createServer(function(req, res) {
 		handler(req, res, function (err) {
 			res.statusCode = 404;
 			res.end('no such location');
-  		});	
+			});	
 		return;
 	}
 
 	var jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
+		if(item.https) {
+			continue;
+		}
 		if (req.headers.host.match(new RegExp(item.pattern))) {
 
 			if (item.type === 'redirect') {
@@ -114,6 +122,18 @@ var server = http.createServer(function(req, res) {
 }).listen(PORT);
 
 console.log("listening for http on PORT ", PORT);
+
+/**
+ * Handling https proxy
+ */
+
+https.createServer(sslOptions, function(req, res) {
+    req.headers.host = 'app.ourdomain.com';
+
+    proxy.web(req, res, {
+        target: "https://localhost:8444"
+    });
+}).listen(HTTPS_PORT);
 
 /**
  * Handle self upgrades.
