@@ -11,6 +11,8 @@ var options = require('./options.json');
 var fs = require('fs');
 var createHandler = require('github-webhook-handler');
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+
 /**
  * Local Variables
  */
