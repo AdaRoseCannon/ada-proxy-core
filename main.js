@@ -41,7 +41,7 @@ var httpsProxy = httpProxy.createServer({
 
 	// SPDY-specific options
 	windowSize: 1024, // Server's window size
-	secure: true // Depends on your needs, could be false.
+	secure: false // Depends on your needs, could be false.
 }).on('error', function (err, req, res) {
 	res.writeHead(500, {
 		'Content-Type': 'text/plain'
