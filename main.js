@@ -83,7 +83,7 @@ init();
  */
 var server = http.createServer(function(req, res) {
 	
-	var testPath = req.protocol + '://' + req.headers.host;
+	var testPath = 'http://' + req.headers.host;
 
 	console.log("incoming request:", testPath);
 
