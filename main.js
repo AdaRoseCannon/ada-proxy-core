@@ -163,7 +163,7 @@ handler.on('push', function (event) {
 			// Update git in place
 
 			var git = require('gift');
-			var repo = git(process.cwd());
+			var repo = git(__dirname);
 			repo.sync(function (err) {
 				if (err) {
 					console.log (err);
