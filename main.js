@@ -136,9 +136,12 @@ console.log("listening for http on PORT ", PORT);
 
 https.createServer(sslOptions, function(req, res) {
 
-    proxy.web(req, res, {
-        target: "https://localhost:8444"
-    });
+	proxy.web(req, res, {
+		target: "https://localhost:8444",
+		secure: false,
+		hostnameOnly: true,
+
+	});
 }).listen(HTTPS_PORT);
 console.log("listening for https on PORT ", HTTPS_PORT);
 
