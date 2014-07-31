@@ -105,7 +105,9 @@ var server = http.createServer(function(req, res) {
 
 			if (item.type === 'redirect') {
 				console.log('redirecting to:', item.target);
-				res.redirect(item.target);
+				res.statusCode = 302;
+				res.setHeader('Location', item.target);
+				res.end();
 			}
 
 			if (item.type === 'proxy') {
