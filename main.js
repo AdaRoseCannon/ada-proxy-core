@@ -7,7 +7,6 @@
 var http = require('http');
 var httpProxy = require('http-proxy');
 var options = require('./options.json');
-var forever = require('forever');
 var fs = require('fs');
 var createHandler = require('github-webhook-handler');
 
@@ -69,7 +68,6 @@ function init() {
 	var jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
-		forever.start(item.app);
 	}
 }
 init();
