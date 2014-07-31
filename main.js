@@ -134,6 +134,7 @@ https.createServer(sslOptions, function(req, res) {
         target: "https://localhost:8444"
     });
 }).listen(HTTPS_PORT);
+console.log("listening for http on PORT ", HTTPS_PORT);
 
 /**
  * Handle self upgrades.
