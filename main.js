@@ -33,7 +33,10 @@ var proxy = httpProxy.createProxyServer({}).on('error', function (err, req, res)
 var sslOptions = {
 	key: fs.readFileSync('/home/ada/keys/ssl.key'),
 	cert: fs.readFileSync('/home/ada/keys/ssl.crt'),
-	ca: fs.readFileSync('/home/ada/keys/ca.pem'),
+	ca: [
+		fs.readFileSync('/home/ada/keys/ca.pem'),
+		fs.readFileSync('/home/ada/keys/sub.class1.server.ca.pem')
+	]
 };
 
 var httpsProxy = httpProxy.createServer({
