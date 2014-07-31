@@ -113,8 +113,9 @@ var server = http.createServer(function(req, res) {
 			if (item.type === 'proxy') {
 				console.log('routing to:', item.target);
 				proxy.web(req, res,{ target: item.target });
-				return;
 			}
+			
+			return;
 		}
 	}
 
