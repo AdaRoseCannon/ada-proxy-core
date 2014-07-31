@@ -83,9 +83,11 @@ init();
  */
 var server = http.createServer(function(req, res) {
 	
-	console.log("incoming request:", req.headers.host);
+	var testPath = req.protocol + '://' + req.headers.host;
 
-	if (req.headers.host.match(/^githooks/i)) {
+	console.log("incoming request:", testPath);
+
+	if (testPath.match(/^githooks/i)) {
 		handler(req, res, function (err) {
 			res.statusCode = 404;
 			res.end('no such location');
@@ -99,7 +101,7 @@ var server = http.createServer(function(req, res) {
 		if(item.https) {
 			continue;
 		}
-		if (req.headers.host.match(new RegExp(item.pattern))) {
+		if (testPath.match(new RegExp(item.pattern))) {
 
 			if (item.type === 'redirect') {
 				console.log('redirecting to:', item.target);
@@ -128,13 +130,12 @@ console.log("listening for http on PORT ", PORT);
  */
 
 https.createServer(sslOptions, function(req, res) {
-    req.headers.host = 'app.ourdomain.com';
 
     proxy.web(req, res, {
         target: "https://localhost:8444"
     });
 }).listen(HTTPS_PORT);
-console.log("listening for http on PORT ", HTTPS_PORT);
+console.log("listening for https on PORT ", HTTPS_PORT);
 
 /**
  * Handle self upgrades.
