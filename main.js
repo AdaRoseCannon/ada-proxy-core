@@ -127,7 +127,7 @@ var server = http.createServer(function(req, res) {
 	res.writeHead(500, {
 		'Content-Type': 'text/plain'
 	});
-	res.end('No matching routes.');
+	res.end('No matching http routes.');
 
 }).listen(PORT);
 
@@ -139,13 +139,34 @@ console.log("listening for http on PORT ", PORT);
 
 https.createServer(sslOptions, function(req, res) {
 
-	proxy.web(req, res, {
-		target: "https://localhost:8444",
-		secure: false,
-		hostnameOnly: true,
+	var jobsLength = jobsArray.length;
+	for (var i=0;i<jobsLength;i++) {
+		var item = jobsArray[i];
+		if(!item.https) {
+			continue;
+		}
 
+		if (testPath.match(new RegExp(item.pattern))) {
+
+			if (item.type === 'proxy') {
+				console.log('routing to:', item.target);
+				proxy.web(req, res, {
+					target: item.target,
+					secure: false,
+					hostnameOnly: true,
+				});
+			}
+			return;
+		}
+	}
+
+	res.writeHead(500, {
+		'Content-Type': 'text/plain'
 	});
+	res.end('No matching https routes.');
+
 }).listen(HTTPS_PORT);
+
 console.log("listening for https on PORT ", HTTPS_PORT);
 
 /**

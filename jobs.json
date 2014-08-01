@@ -1,5 +1,12 @@
 [{
 	"pattern": "http://a\\.ada\\.is",
 	"type": "redirect",
-	"target": "https://a.ada.is"
+	"target": "https://a.ada.is",
+	"comment": "This redirects http to https"
+}, {
+	"pattern": "https://a\\.ada\\.is",
+	"type": "proxy",
+	"target": "https://localhost:8444",
+	"https": true,
+	"comment": "This proxies https://a.ada.is to the local port"
 }]
