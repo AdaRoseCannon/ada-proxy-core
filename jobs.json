@@ -12,6 +12,7 @@
 	"deploy": {
 		"watch": "https://github.com/AdaRoseEdwards/ft-ada",
 		"folder": "/home/ada/gitWorkingDir/ft-ada/",
+		"run": "npm install; gulp build",
 		"comment": "auto git up a directory, it needs to be restarted manually"
 	}
 }]

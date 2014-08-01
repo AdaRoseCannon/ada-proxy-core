@@ -10,6 +10,7 @@ var httpProxy = require('http-proxy');
 var options = require('./options.json');
 var fs = require('fs');
 var createHandler = require('github-webhook-handler');
+var spawn = require('child_process').spawn;
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
@@ -237,7 +238,16 @@ handler.on('push', function (event) {
 						console.log (err);
 						return;
 					}
-					console.log('Updated', item.deploy.folder)
+					var run spawn(item.deploy.run, [], {
+						cwd: item.deploy.folder
+					});
+					run.on('close', function (code) {
+						if (!code) {
+							console.log('Updated', item.deploy.folder, 'successfully');
+						} else {
+							console.log('Deploy step failed.')
+						}
+					});
 				});
 			}
 		}
