@@ -231,12 +231,13 @@ handler.on('push', function (event) {
 			var item = jobsArray[i];
 			if (item.deploy && event.payload.repository.url === item.deploy.watch) {
 				var git = require('gift');
-				var repo = git(__dirname);
+				var repo = git(item.deploy.folder);
 				repo.sync(function (err) {
 					if (err) {
 						console.log (err);
 						return;
 					}
+					console.log('Updated', item.deploy.folder)
 				});
 			}
 		}
