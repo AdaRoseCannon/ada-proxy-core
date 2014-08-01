@@ -138,6 +138,10 @@ console.log("listening for http on PORT ", PORT);
  */
 
 https.createServer(sslOptions, function(req, res) {
+	
+	var testPath = 'https://' + req.headers.host;
+
+	console.log("incoming request:", testPath);
 
 	var jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
