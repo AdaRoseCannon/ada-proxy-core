@@ -238,7 +238,7 @@ handler.on('push', function (event) {
 						console.log (err);
 						return;
 					}
-					var run spawn(item.deploy.run, [], {
+					var run = spawn(item.deploy.run, [], {
 						cwd: item.deploy.folder
 					});
 					run.on('close', function (code) {
