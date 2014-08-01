@@ -226,6 +226,20 @@ handler.on('push', function (event) {
 	} else {
 
 		// It needs to update one of the programs being run by forever
-		console.log('');
+		var jobsLength = jobsArray.length;
+		for (var i=0;i<jobsLength;i++) {
+			var item = jobsArray[i];
+			if (item.deploy && event.payload.repository.url === item.deploy.watch) {
+				var git = require('gift');
+				var repo = git(__dirname);
+				repo.sync(function (err) {
+					if (err) {
+						console.log (err);
+						return;
+					}
+					
+				}
+			}
+		}
 	}
 });

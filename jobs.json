@@ -8,5 +8,10 @@
 	"type": "proxy",
 	"target": "https://localhost:8444",
 	"https": true,
-	"comment": "This proxies https://a.ada.is to the local port"
+	"comment": "This proxies https://a.ada.is to the local port",
+	"deploy": {
+		"watch": "https://github.com/AdaRoseEdwards/ft-ada",
+		"folder": "/home/ada/gitWorkingDir/ft-ada/",
+		"comment": "auto git up a directory, it needs to be restarted manually"
+	}
 }]
