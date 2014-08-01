@@ -237,8 +237,7 @@ handler.on('push', function (event) {
 						console.log (err);
 						return;
 					}
-					
-				}
+				});
 			}
 		}
 	}
