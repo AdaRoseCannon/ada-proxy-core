@@ -238,9 +238,11 @@ handler.on('push', function (event) {
 						console.log (err);
 						return;
 					}
-					var run = exec(item.deploy.run, {
-						cwd: item.deploy.folder
-					});
+					if (item.deploy.run) {
+						var run = exec(item.deploy.run, {
+							cwd: item.deploy.folder
+						});
+					}
 					run.on('close', function (code) {
 						if (!code) {
 							console.log('Updated', item.deploy.folder, 'successfully');
