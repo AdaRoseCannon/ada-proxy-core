@@ -31,14 +31,21 @@ var proxy = httpProxy.createProxyServer({}).on('error', function (err, req, res)
 	console.log(err);
 });
 
-var sslOptions = {
-	key: fs.readFileSync('/home/ada/keys/ssl.key'),
-	cert: fs.readFileSync('/home/ada/keys/ssl.crt'),
-	ca: [
-		fs.readFileSync('/home/ada/keys/ca.pem'),
-		fs.readFileSync('/home/ada/keys/sub.class1.server.ca.pem')
-	]
-};
+var sslOptions = options.ssl_options;
+
+function filePathToFile(array) {
+	for (item in array) {
+		if (typeof array[item] === 'string') {
+			array[item] = fs.readFileSync(array[item]);
+			break;
+		}
+		if (array[item].constructor === Array || typeof array[item] === 'object') {
+			filePathToFile(array[item]);
+			break;
+		}
+	}
+}
+	
 
 var httpsProxy = httpProxy.createServer({
 	ssl: sslOptions,
@@ -93,7 +100,7 @@ var server = http.createServer(function(req, res) {
 
 	console.log("incoming request:", testPath);
 
-	if (testPath.match(/^http:\/\/githooks/i)) {
+	if (testPath.match(new RegExp(options.githookURL, "gi"))) {
 		handler(req, res, function (err) {
 			res.statusCode = 404;
 			res.end('no such location');
@@ -107,7 +114,7 @@ var server = http.createServer(function(req, res) {
 		if(item.https) {
 			continue;
 		}
-		if (testPath.match(new RegExp(item.pattern))) {
+		if (testPath.match(new RegExp(item.pattern, "gi"))) {
 
 			if (item.type === 'redirect') {
 				console.log('redirecting to:', item.target);
@@ -180,8 +187,8 @@ console.log("listening for https on PORT ", HTTPS_PORT);
 handler.on('push', function (event) {
 
 	console.log('Received a push event for %s to %s', event.payload.repository.name, event.payload.ref);
-	if (event.payload.repository.url === "https://github.com/AdaRoseEdwards/ada-proxy") {
-		if (event.payload.ref === "refs/heads/master") {
+	if (event.payload.repository.url === options.repoURL) {
+		if (event.payload.ref === (options.repoRef || "refs/heads/master")) {
 
 			var commits = event.payload.commits;
 			var hardReloadRequired = false;
