@@ -34,18 +34,19 @@ var proxy = httpProxy.createProxyServer({}).on('error', function (err, req, res)
 var sslOptions = options.ssl_options;
 
 function filePathToFile(array) {
-	for (item in array) {
+	for (var item in array) {
 		if (typeof array[item] === 'string') {
 			array[item] = fs.readFileSync(array[item]);
-			break;
+			continue;
 		}
 		if (array[item].constructor === Array || typeof array[item] === 'object') {
 			filePathToFile(array[item]);
-			break;
+			continue;
 		}
 	}
 }
 	
+filePathToFile(sslOptions);
 
 var httpsProxy = httpProxy.createServer({
 	ssl: sslOptions,
@@ -144,7 +145,6 @@ console.log("listening for http on PORT ", PORT);
 /**
  * Handling https proxy
  */
-
 https.createServer(sslOptions, function(req, res) {
 	
 	var testPath = 'https://' + req.headers.host;
