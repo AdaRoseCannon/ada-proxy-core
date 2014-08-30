@@ -236,7 +236,7 @@ handler.on('push', function (event) {
 					});
 					run.on('close', function (code) {
 						if (!code) {
-							console.log('Updated', item.deploy.folder, 'successfully');
+							console.log('Updated self successfully');
 						} else {
 							console.log('Deploy step failed.');
 						}
