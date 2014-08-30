@@ -15,4 +15,13 @@
 		"run": "forever restart 1",
 		"comment": "auto git up a directory, it needs to be restarted manually"
 	}
+}, {
+	"pattern": "http://sound\\.ada\\.is",
+	"type": "folder",
+	"target": "/home/ada/gitWorkingDir/SoundThing/",
+	"comment": "Folder for soundThing",
+	"deploy": {
+		"watch": "https://github.com/AdaRoseEdwards/SoundThing",
+		"folder": "/home/ada/gitWorkingDir/SoundThing/"
+	}
 }]

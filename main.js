@@ -11,6 +11,8 @@ var options = require('./options.json');
 var fs = require('fs');
 var createHandler = require('github-webhook-handler');
 var exec = require('child_process').exec;
+var nodeStatic = require('node-static');
+var path = require('path');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
@@ -48,7 +50,11 @@ function filePathToFile(array) {
 	
 filePathToFile(sslOptions);
 
-var httpsProxy = httpProxy.createServer({
+
+/**
+	Http server
+**/
+httpProxy.createServer({
 	ssl: sslOptions,
 
 	// SPDY-specific options
@@ -95,7 +101,7 @@ init();
 /**
  * Handle http redirects and proxy
  */
-var server = http.createServer(function(req, res) {
+http.createServer(function(req, res) {
 	
 	var testPath = 'http://' + req.headers.host;
 
@@ -105,6 +111,7 @@ var server = http.createServer(function(req, res) {
 		handler(req, res, function (err) {
 			res.statusCode = 404;
 			res.end('no such location');
+			res.end(err);
 			});	
 		return;
 	}
@@ -115,18 +122,24 @@ var server = http.createServer(function(req, res) {
 		if(item.https) {
 			continue;
 		}
+
 		if (testPath.match(new RegExp(item.pattern, "gi"))) {
+			switch(item.type) {
+				case 'redirect':
+					console.log('redirecting to:', item.target);
+					res.statusCode = 302;
+					res.setHeader('Location', item.target);
+					res.end();
+					break;
 
-			if (item.type === 'redirect') {
-				console.log('redirecting to:', item.target);
-				res.statusCode = 302;
-				res.setHeader('Location', item.target);
-				res.end();
-			}
+				case 'proxy':
+					console.log('routing to:', item.target);
+					proxy.web(req, res,{ target: item.target });
+					break;
 
-			if (item.type === 'proxy') {
-				console.log('routing to:', item.target);
-				proxy.web(req, res,{ target: item.target });
+				case 'folder':
+					(new nodeStatic.Server(item.target)).serve(req, res);
+					break;
 			}
 			
 			return;
@@ -217,10 +230,20 @@ handler.on('push', function (event) {
 				}
 
 				if (hardReloadRequired) {
+					var run = exec("npm install", {
+						cwd: __dirname
+					});
+					run.on('close', function (code) {
+						if (!code) {
+							console.log('Updated', item.deploy.folder, 'successfully');
+						} else {
+							console.log('Deploy step failed.');
+						}
 
-					// Shutdown the process so that forever brings it back up.
-					console.log('hard reset');
-					process.exit();
+						// Shutdown the process so that forever brings it back up.
+						console.log('hard reset');
+						process.exit();
+					});
 				}
 				if (softReloadRequired) {
 
@@ -235,7 +258,7 @@ handler.on('push', function (event) {
 
 		// It needs to update one of the programs being run by forever
 		var jobsLength = jobsArray.length;
-		for (var i=0;i<jobsLength;i++) {
+		for (var i = 0; i < jobsLength; i++) {
 			var item = jobsArray[i];
 			if (item.deploy && event.payload.repository.url === item.deploy.watch) {
 				var git = require('gift');
@@ -249,14 +272,14 @@ handler.on('push', function (event) {
 						var run = exec(item.deploy.run, {
 							cwd: item.deploy.folder
 						});
+						run.on('close', function (code) {
+							if (!code) {
+								console.log('Updated', item.deploy.folder, 'successfully');
+							} else {
+								console.log('Deploy step failed.');
+							}
+						});
 					}
-					run.on('close', function (code) {
-						if (!code) {
-							console.log('Updated', item.deploy.folder, 'successfully');
-						} else {
-							console.log('Deploy step failed.')
-						}
-					});
 				});
 			}
 		}
