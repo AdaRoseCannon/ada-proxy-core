@@ -236,7 +236,7 @@ handler.on('push', function (event) {
 					});
 					run.on('close', function (code) {
 						if (!code) {
-							console.log('Updated self successfully');
+							console.log('Updated ada-proxy successfully');
 						} else {
 							console.log('Deploy step failed.');
 						}
