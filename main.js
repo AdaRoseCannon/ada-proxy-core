@@ -105,14 +105,14 @@ http.createServer(function(req, res) {
 	
 	var testPath = 'http://' + req.headers.host;
 
-	console.log("incoming request:", testPath);
-
 	if (testPath.match(new RegExp(options.githookURL, "gi"))) {
 		handler(req, res, function (err) {
 			res.statusCode = 404;
 			res.end('no such location');
 			res.end(err);
-			});	
+		});	
+
+		console.log("incoming matched http request:", testPath);
 		return;
 	}
 
@@ -138,6 +138,7 @@ http.createServer(function(req, res) {
 					break;
 
 				case 'folder':
+					console.log('Not memory efficient, static folder:', item.target);
 					(new nodeStatic.Server(item.target)).serve(req, res);
 					break;
 			}
@@ -162,7 +163,7 @@ https.createServer(sslOptions, function(req, res) {
 	
 	var testPath = 'https://' + req.headers.host;
 
-	console.log("incoming request:", testPath);
+	console.log("incoming https request:", testPath);
 
 	var jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
