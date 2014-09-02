@@ -102,7 +102,8 @@ function init() {
 init();
 
 var n=0;
-function logRequest(req, message) {
+function logRequest(req) {
+	var message = Array.slice.call(arguments, arguments, 1).join(" ");
 	console.log(++n + ': ', req.headers.host, ':', message);
 }
 
@@ -182,8 +183,6 @@ https.createServer(sslOptions, function(req, res) {
 	
 	var testPath = 'https://' + req.headers.host;
 
-	console.log("incoming https request:", testPath);
-
 	var jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
@@ -194,7 +193,7 @@ https.createServer(sslOptions, function(req, res) {
 		if (testPath.match(new RegExp(item.pattern))) {
 
 			if (item.type === 'proxy') {
-				console.log('routing to:', item.target);
+				logRequest('routing to:', item.target);
 				proxy.web(req, res, {
 					target: item.target,
 					secure: false,
