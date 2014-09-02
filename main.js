@@ -12,7 +12,6 @@ var fs = require('fs');
 var createHandler = require('github-webhook-handler');
 var exec = require('child_process').exec;
 var nodeStatic = require('node-static');
-var path = require('path');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
@@ -21,7 +20,8 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
  */
 
 var handler = createHandler({ path: '/', secret: require('./secret') });
-var jobsArray = require('./jobs.json');
+var jobsArray;
+var jobsLength;
 var PORT = options.port || 8080;
 var HTTPS_PORT = options.https_port || 8443;
 var proxy = httpProxy.createProxyServer({}).on('error', function (err, req, res) {
@@ -47,7 +47,7 @@ function filePathToFile(array) {
 		}
 	}
 }
-	
+
 filePathToFile(sslOptions);
 
 
@@ -90,13 +90,21 @@ httpProxy.createServer({
 })();
 
 function init() {
-	var jobsLength = jobsArray.length;
+	jobsArray = require('./jobs.json');
+	jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
+		if (item.type === 'folder') {
+			item.server = new nodeStatic.Server(item.target);
+		}
 	}
 }
 init();
 
+var n=0;
+function logRequest(req, message) {
+	console.log(++n + ': ', req.headers.host, ':', message);
+}
 
 /**
  * Handle http redirects and proxy
@@ -110,13 +118,10 @@ http.createServer(function(req, res) {
 			res.statusCode = 404;
 			res.end('no such location');
 			res.end(err);
-		});	
-
-		console.log("incoming matched http request:", testPath);
+		});
 		return;
 	}
 
-	var jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
 		if(item.https) {
@@ -125,22 +130,36 @@ http.createServer(function(req, res) {
 
 		if (testPath.match(new RegExp(item.pattern, "gi"))) {
 			switch(item.type) {
+
+				case 'run': 
+					var run = exec(item.command, {
+						cwd: item.workingDir
+					});
+					run.on('close', function (code) {
+						if (!code) {
+							console.log('Ran', item.name, 'successfully');
+						} else {
+							console.log('Failed to run', item.name);
+						}
+					});
+					break;
+
 				case 'redirect':
-					console.log('redirecting to:', item.target);
+					logRequest(req, 'redirecting to:', item.target);
 					res.statusCode = 302;
 					res.setHeader('Location', item.target);
 					res.end();
-					break;
+					return;
 
 				case 'proxy':
-					console.log('routing to:', item.target);
+					logRequest(req, 'routing to:', item.target);
 					proxy.web(req, res,{ target: item.target });
-					break;
+					return;
 
 				case 'folder':
-					console.log('Not memory efficient, static folder:', item.target);
-					(new nodeStatic.Server(item.target)).serve(req, res);
-					break;
+					logRequest(req, 'Serving static folder:', item.target);
+					item.server.serve(req, res);
+					return;
 			}
 			
 			return;
