@@ -107,6 +107,7 @@ function logRequest(req) {
 	for (var i = 1; i < arguments.length; i++) {
 		args.push(arguments[i]);
 	}
+	var message = args.join(" ");
 	console.log(++n + ': ', req.headers.host, ':', message);
 }
 
