@@ -103,7 +103,7 @@ init();
 
 var n=0;
 function logRequest(req) {
-	var message = Array.slice.call(arguments, arguments, 1).join(" ");
+	var message = Array.prototype.slice.call(arguments, arguments, 1).join(" ");
 	console.log(++n + ': ', req.headers.host, ':', message);
 }
 
