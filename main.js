@@ -193,7 +193,7 @@ https.createServer(sslOptions, function(req, res) {
 		if (testPath.match(new RegExp(item.pattern))) {
 
 			if (item.type === 'proxy') {
-				logRequest('routing to:', item.target);
+				logRequest(req, 'routing to:', item.target);
 				proxy.web(req, res, {
 					target: item.target,
 					secure: false,
