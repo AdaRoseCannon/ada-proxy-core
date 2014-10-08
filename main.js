@@ -24,14 +24,6 @@ var jobsArray;
 var jobsLength;
 var PORT = options.port || 8080;
 var HTTPS_PORT = options.https_port || 8443;
-var proxy = httpProxy.createProxyServer({}).on('error', function (err, req, res) {
-	res.writeHead(500, {
-		'Content-Type': 'text/plain'
-	});
-	
-	res.end('Something went wrong. And we are reporting a custom error message.\n');
-	console.log(err);
-});
 
 var sslOptions = options.ssl_options;
 
@@ -50,16 +42,14 @@ function filePathToFile(array) {
 
 filePathToFile(sslOptions);
 
-
-/**
-	Http server
-**/
-httpProxy.createServer({
+var proxy = httpProxy.createProxyServer({
 	ssl: sslOptions,
 
 	// SPDY-specific options
-	windowSize: 1024, // Server's window size
-	secure: false // Depends on your needs, could be false.
+	windowSize: 1024,
+	secure: false,
+	hostnameOnly: true
+
 }).on('error', function (err, req, res) {
 	res.writeHead(500, {
 		'Content-Type': 'text/plain'
@@ -158,7 +148,9 @@ http.createServer(function(req, res) {
 
 				case 'proxy':
 					logRequest(req, 'routing to:', item.target);
-					proxy.web(req, res,{ target: item.target });
+					proxy.web(req, res,{
+						target: item.target
+					});
 					return;
 
 				case 'folder':
@@ -199,9 +191,7 @@ https.createServer(sslOptions, function(req, res) {
 			if (item.type === 'proxy') {
 				logRequest(req, 'routing to:', item.target);
 				proxy.web(req, res, {
-					target: item.target,
-					secure: false,
-					hostnameOnly: true,
+					target: item.target
 				});
 			}
 			return;
