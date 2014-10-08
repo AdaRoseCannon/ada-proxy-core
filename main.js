@@ -47,7 +47,7 @@ var proxy = httpProxy.createProxyServer({
 
 	// SPDY-specific options
 	windowSize: 1024,
-	secure: true,
+	secure: false,
 	hostnameOnly: true
 
 }).on('error', function (err, req, res) {
@@ -55,7 +55,8 @@ var proxy = httpProxy.createProxyServer({
 		'Content-Type': 'text/plain'
 	});
 	
-	res.end('Something went wrong. And we are reporting a custom error message.\n');
+	res.write(err.message);
+	res.end('Oh dear!!');
 	console.log(err);
 });
 
