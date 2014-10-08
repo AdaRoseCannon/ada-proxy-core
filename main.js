@@ -47,7 +47,7 @@ var proxy = httpProxy.createProxyServer({
 
 	// SPDY-specific options
 	windowSize: 1024,
-	secure: false,
+	secure: true,
 	hostnameOnly: true
 
 }).on('error', function (err, req, res) {
