@@ -157,7 +157,7 @@ console.log("listening for http on PORT ", PORT);
 /**
  * Handling https proxy
  */
-https.createServer(options.sslOptions, function(req, res) {
+https.createServer(options.ssl_options, function(req, res) {
 
 	var testPath = 'https://' + req.headers.host;
 
