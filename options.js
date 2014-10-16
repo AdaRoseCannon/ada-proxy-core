@@ -1,5 +1,6 @@
 var constants = require('constants');
 var fs = require('fs');
+var https = require('https');
 
 module.exports = {
 	port: 8080,
@@ -28,3 +29,6 @@ module.exports = {
 	repoURL: "https://github.com/AdaRoseEdwards/ada-proxy",
 	repoRef: "refs/heads/master"
 };
+
+
+module.exports.ssl_options.agent = new https.Agent(module.exports.ssl_options);
