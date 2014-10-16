@@ -136,7 +136,7 @@ http.createServer(function(req, res) {
 					});
 					return;
 
-				case 'folder':
+				case 'static':
 					logRequest(req, 'Serving static folder:', item.target);
 					item.server.serve(req, res);
 					return;
