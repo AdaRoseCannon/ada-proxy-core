@@ -8,7 +8,6 @@ var http = require('http');
 var https = require('https');
 var httpProxy = require('http-proxy');
 var options = require('./options');
-var fs = require('fs');
 var createHandler = require('github-webhook-handler');
 var exec = require('child_process').exec;
 var nodeStatic = require('node-static');
@@ -25,25 +24,8 @@ var jobsLength;
 var PORT = options.port || 8080;
 var HTTPS_PORT = options.https_port || 8443;
 
-var sslOptions = options.ssl_options;
-
-function filePathToFile(array) {
-	for (var item in array) {
-		if (typeof array[item] === 'string') {
-			array[item] = fs.readFileSync(array[item]);
-			continue;
-		}
-		if (array[item].constructor === Array || typeof array[item] === 'object') {
-			filePathToFile(array[item]);
-			continue;
-		}
-	}
-}
-
-filePathToFile(sslOptions);
-
 var proxy = httpProxy.createProxyServer({
-	ssl: sslOptions,
+	ssl: options.ssl_options,
 
 	// SPDY-specific options
 	windowSize: 1024,

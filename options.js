@@ -1,4 +1,5 @@
 var constants = require('constants');
+var fs = require('fs');
 
 module.exports = {
 	port: 8080,
@@ -18,11 +19,11 @@ module.exports = {
 		// from the list of supported protocols that SSLv23_method supports.
 		//
 		secureOptions: constants.SSL_OP_NO_SSLv3,
-		key: "/home/ada/keys/ssl.key",
-		cert: "/home/ada/keys/ssl.crt",
+		key: fs.readFileSync("/home/ada/keys/ssl.key"),
+		cert: fs.readFileSync("/home/ada/keys/ssl.crt"),
 		ca: [
-			"/home/ada/keys/ca.pem",
-			"/home/ada/keys/sub.class1.server.ca.pem"
+			fs.readFileSync("/home/ada/keys/ca.pem"),
+			fs.readFileSync("/home/ada/keys/sub.class1.server.ca.pem")
 		]
 	},
 	githookURL: "^http:\/\/githooks",
