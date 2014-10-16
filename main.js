@@ -8,18 +8,17 @@ var http = require('http');
 var https = require('https');
 var httpProxy = require('http-proxy');
 var options = require('./options');
-var createHandler = require('github-webhook-handler');
+var handler = require('github-webhook-handler')({ path: '/', secret: require('./secret') });
 var exec = require('child_process').exec;
 var nodeStatic = require('node-static');
 var git = require('gift');
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 /**
  * Local Variables
  */
 
-var handler = createHandler({ path: '/', secret: require('./secret') });
 var jobsArray;
 var jobsLength;
 var PORT = options.port || 8080;
