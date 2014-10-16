@@ -36,7 +36,6 @@ var proxy = httpProxy.createProxyServer({
 	res.writeHead(500, {
 		'Content-Type': 'text/plain'
 	});
-	
 	res.write(err.message);
 	res.end('Oh dear!!');
 	console.log(err);
@@ -88,7 +87,7 @@ function logRequest(req) {
  * Handle http redirects and proxy
  */
 http.createServer(function(req, res) {
-	
+
 	var testPath = 'http://' + req.headers.host;
 
 	if (testPath.match(new RegExp(options.githookURL, "gi"))) {
@@ -109,7 +108,7 @@ http.createServer(function(req, res) {
 		if (testPath.match(new RegExp(item.pattern, "gi"))) {
 			switch(item.type) {
 
-				case 'run': 
+				case 'run':
 					var run = exec(item.command, {
 						cwd: item.workingDir
 					});
@@ -141,7 +140,7 @@ http.createServer(function(req, res) {
 					item.server.serve(req, res);
 					return;
 			}
-			
+
 			return;
 		}
 	}
@@ -159,7 +158,7 @@ console.log("listening for http on PORT ", PORT);
  * Handling https proxy
  */
 https.createServer(sslOptions, function(req, res) {
-	
+
 	var testPath = 'https://' + req.headers.host;
 
 	var jobsLength = jobsArray.length;
