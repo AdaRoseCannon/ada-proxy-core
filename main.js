@@ -66,7 +66,7 @@ function init() {
 	jobsLength = jobsArray.length;
 	for (var i=0;i<jobsLength;i++) {
 		var item = jobsArray[i];
-		if (item.type === 'folder') {
+		if (item.type === 'static') {
 			item.server = new nodeStatic.Server(item.target);
 		}
 	}
