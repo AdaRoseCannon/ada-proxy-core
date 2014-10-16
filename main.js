@@ -11,6 +11,7 @@ var options = require('./options');
 var createHandler = require('github-webhook-handler');
 var exec = require('child_process').exec;
 var nodeStatic = require('node-static');
+var git = require('gift');
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
@@ -190,6 +191,87 @@ https.createServer(sslOptions, function(req, res) {
 console.log("listening for https on PORT ", HTTPS_PORT);
 
 /**
+ * Update the proxy
+ * @return void
+ */
+function selfUpdate() {
+	var commits = event.payload.commits;
+	var hardReloadRequired = false;
+	var softReloadRequired = false;
+	for (var i=commits.length;i--;) {
+		var item = commits[i];
+		if (!!item.added.length || !!item.removed.length) {
+			hardReloadRequired = true;
+			break;
+		}
+		if (item.modified.length === 1 && item.modified[0] === 'jobs.json') {
+			softReloadRequired = true;
+		} else {
+			hardReloadRequired = true;
+		}
+	}
+
+	// It needs to update itself
+	// Update git in place
+	var repo = git(__dirname);
+	repo.sync(function (err) {
+		if (err) {
+			console.log (err);
+			return;
+		}
+
+		if (hardReloadRequired) {
+			var run = exec("npm install", {
+				cwd: __dirname
+			});
+			run.on('close', function (code) {
+				if (!code) {
+					console.log('Updated ada-proxy successfully');
+				} else {
+					console.log('Deploy step failed.');
+				}
+
+				// Shutdown the process so that forever brings it back up.
+				console.log('hard reset');
+				process.exit();
+			});
+		} else if (softReloadRequired) {
+
+			// Update the jobs
+			jobsArray = require('./jobs.json');
+			console.log('soft reset');
+			init();
+		}
+	});
+}
+
+/**
+ * Sync a folder using git & run install commands
+ * @return void
+ */
+function deploy(item) {
+	var repo = git(item.deploy.folder);
+	repo.sync(function (err) {
+		if (err) {
+			console.log (err);
+			return;
+		}
+		if (item.deploy.run) {
+			var run = exec(item.deploy.run, {
+				cwd: item.deploy.folder
+			});
+			run.on('close', function (code) {
+				if (!code) {
+					console.log('Updated', item.deploy.folder, 'successfully');
+				} else {
+					console.log('Deploy step failed.');
+				}
+			});
+		}
+	});
+}
+
+/**
  * Handle self upgrades.
  */
 handler.on('push', function (event) {
@@ -197,57 +279,7 @@ handler.on('push', function (event) {
 	console.log('Received a push event for %s to %s', event.payload.repository.name, event.payload.ref);
 	if (event.payload.repository.url === options.repoURL) {
 		if (event.payload.ref === (options.repoRef || "refs/heads/master")) {
-
-			var commits = event.payload.commits;
-			var hardReloadRequired = false;
-			var softReloadRequired = false;
-			for (var i=commits.length;i--;) {
-				var item = commits[i];
-				if (!!item.added.length || !!item.removed.length) {
-					hardReloadRequired = true;
-					break;
-				}
-				if (item.modified.length === 1 && item.modified[0] === 'jobs.json') {
-					softReloadRequired = true;
-				} else {
-					hardReloadRequired = true;
-				}
-			}
-			// It needs to update itself
-			// Update git in place
-
-			var git = require('gift');
-			var repo = git(__dirname);
-			repo.sync(function (err) {
-				if (err) {
-					console.log (err);
-					return;
-				}
-
-				if (hardReloadRequired) {
-					var run = exec("npm install", {
-						cwd: __dirname
-					});
-					run.on('close', function (code) {
-						if (!code) {
-							console.log('Updated ada-proxy successfully');
-						} else {
-							console.log('Deploy step failed.');
-						}
-
-						// Shutdown the process so that forever brings it back up.
-						console.log('hard reset');
-						process.exit();
-					});
-				}
-				if (softReloadRequired) {
-
-					// Update the jobs
-					jobsArray = require('./jobs.json');
-					console.log('soft reset');
-					init();
-				}
-			});
+			selfUpdate();
 		}
 	} else {
 
@@ -256,26 +288,7 @@ handler.on('push', function (event) {
 		for (var i = 0; i < jobsLength; i++) {
 			var item = jobsArray[i];
 			if (item.deploy && event.payload.repository.url === item.deploy.watch) {
-				var git = require('gift');
-				var repo = git(item.deploy.folder);
-				repo.sync(function (err) {
-					if (err) {
-						console.log (err);
-						return;
-					}
-					if (item.deploy.run) {
-						var run = exec(item.deploy.run, {
-							cwd: item.deploy.folder
-						});
-						run.on('close', function (code) {
-							if (!code) {
-								console.log('Updated', item.deploy.folder, 'successfully');
-							} else {
-								console.log('Deploy step failed.');
-							}
-						});
-					}
-				});
+				deploy(item);
 			}
 		}
 	}
