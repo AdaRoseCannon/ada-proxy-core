@@ -38,8 +38,6 @@ options.proxy = httpProxy.createProxyServer({
 	console.log(err);
 });
 
-
-
 /**
  * Process the args in this Immediately-Invoked Function Expression
  * To avoid cluttering the global scope

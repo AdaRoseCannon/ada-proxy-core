@@ -5,6 +5,7 @@ var https = require('https');
 module.exports = {
 	port: 8080,
 	https_port: 8443,
+	gitSecret: require('./secret'),
 	ssl_options: {
 		// This is the default secureProtocol used by Node.js, but it might be
 		// sane to specify this by default as it's required if you want to
