@@ -58,16 +58,17 @@ options.proxy = httpProxy.createProxyServer({
 	options.port = parseInt(options.port);
 })();
 
-console.log("listening for http on options.port ", options.port);
-
 /**
  * Handling https proxy
  */
 
 require('./lib/https-proxy-server')(options);
+console.log("listening for https on options.port ", options.https_port);
 require('./lib/http-proxy-server')(options)
 	.on('updateself', selfUpdate)
 	.on('update', deploy);
+console.log("listening for http on options.port ", options.port);
+
 
 /**
  * Update the proxy
