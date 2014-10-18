@@ -64,8 +64,8 @@ console.log("listening for http on options.port ", options.port);
  * Handling https proxy
  */
 
-require('./lib/https-proxy-server');
-require('./lib/http-proxy-server')
+require('./lib/https-proxy-server')(options);
+require('./lib/http-proxy-server')(options)
 	.on('updateself', selfUpdate)
 	.on('update', deploy);
 
