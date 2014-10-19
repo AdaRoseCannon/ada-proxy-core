@@ -9,7 +9,7 @@ var exec = require('child_process').exec;
 var git = require('gift');
 var jobs = require('./lib/jobs');
 
-module.export = function(options, jobsArray) {
+module.exports = function(options, jobsArray) {
 	jobs.setArray(jobsArray);
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
