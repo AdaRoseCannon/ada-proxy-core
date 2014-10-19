@@ -1,5 +1,5 @@
 {
-  "name": "ada-proxy",
+  "name": "ada-proxy-core",
   "version": "0.0.0",
   "description": "Proxy for my server",
   "main": "index.js",
@@ -19,14 +19,14 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/AdaRoseEdwards/ada-proxy.git"
+    "url": "https://github.com/AdaRoseEdwards/ada-proxy-core.git"
   },
   "keywords": [
     "Ada",
     "Proxy"
   ],
   "bugs": {
-    "url": "https://github.com/AdaRoseEdwards/ada-proxy/issues"
+    "url": "https://github.com/AdaRoseEdwards/ada-proxy-core/issues"
   },
-  "homepage": "https://github.com/AdaRoseEdwards/ada-proxy"
+  "homepage": "https://github.com/AdaRoseEdwards/ada-proxy-core"
 }
