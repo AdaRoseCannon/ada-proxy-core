@@ -8,8 +8,10 @@ var httpProxy = require('http-proxy');
 var exec = require('child_process').exec;
 var git = require('gift');
 var jobs = require('./lib/jobs');
+var EventEmitter = require('events').EventEmitter;
 
 module.exports = function(options, jobsArray) {
+	var eventEmitter = new EventEmitter();
 	jobs.setArray(jobsArray);
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -42,7 +44,11 @@ module.exports = function(options, jobsArray) {
 	console.log("listening for https on options.port ", options.https_port);
 	require('./lib/http-proxy-server')(options)
 		.on('updateself', selfUpdate)
-		.on('update', deploy);
+		.on('update', function (item) {
+			deploy(item, function () {
+				eventEmitter.emit('updated', item);
+			});
+		});
 	console.log("listening for http on options.port ", options.port);
 
 
@@ -58,9 +64,7 @@ module.exports = function(options, jobsArray) {
 			}
 		};
 		deploy(selfItem, function () {
-			console.log('Updated ada-proxy successfully');
-			console.log('hard reset');
-			process.exit();
+			eventEmitter.emit('updatedSelf');
 		});
 	}
 
@@ -89,5 +93,8 @@ module.exports = function(options, jobsArray) {
 				});
 			}
 		});
-	}	
+	}
+
+	eventEmitter.updateJobs = jobs.setArray;
+	return eventEmitter;
 };
