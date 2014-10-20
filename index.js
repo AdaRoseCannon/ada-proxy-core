@@ -9,6 +9,7 @@ var exec = require('child_process').exec;
 var git = require('gift');
 var jobs = require('./lib/jobs');
 var EventEmitter = require('events').EventEmitter;
+require('es6-promise').polyfill();
 
 module.exports = function(options, jobsArray) {
 	var eventEmitter = new EventEmitter();
