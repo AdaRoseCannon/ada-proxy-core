@@ -41,17 +41,25 @@ module.exports = function(options, jobsArray) {
 	 * Handling https proxy
 	 */
 
-	require('./lib/https-proxy-server')(options);
-	console.log("listening for https on options.port ", options.https_port);
+	require('./lib/https-proxy-server')(options)
+		.on('jobcomplete', jobComplete);
+
 	require('./lib/http-proxy-server')(options)
 		.on('updateself', selfUpdate)
 		.on('update', function (item) {
 			deploy(item, function () {
 				eventEmitter.emit('updated', item);
 			});
-		});
+		}).on('jobcomplete', jobComplete);
+
+	console.log("listening for https on options.port ", options.https_port);
 	console.log("listening for http on options.port ", options.port);
 
+	function jobComplete(req, res, item) {
+		if (item.type === 'return') {
+			eventEmitter.emit('return', req, res, item);
+		}	
+	}
 
 	/**
 	 * Update the proxy
