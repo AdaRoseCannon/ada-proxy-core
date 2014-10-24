@@ -9,10 +9,13 @@ var exec = require('child_process').exec;
 var git = require('gift');
 var jobs = require('./lib/jobs');
 var EventEmitter = require('events').EventEmitter;
+var options = require('./lib/options');
 require('es6-promise').polyfill();
 
-module.exports = function(options, jobsArray) {
+module.exports = function(optionsIn, jobsArray) {
 	var eventEmitter = new EventEmitter();
+	options = options.init(optionsIn);
+
 	jobs.setArray(jobsArray);
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -61,21 +64,6 @@ module.exports = function(options, jobsArray) {
 		}	
 	}
 
-	/**
-	 * Update the proxy
-	 * @return void
-	 */
-	function selfUpdate() {
-		var selfItem = {
-			deploy: {
-				folder: __dirname,
-				run: "npm install"
-			}
-		};
-		deploy(selfItem, function () {
-			eventEmitter.emit('updatedSelf');
-		});
-	}
 
 	/**
 	 * Sync a folder using git & run install commands
