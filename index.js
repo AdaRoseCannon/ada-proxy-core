@@ -44,16 +44,16 @@ module.exports = function(optionsIn, jobsArray) {
 	 * Handling https proxy
 	 */
 
-	require('./lib/https-proxy-server')(options)
-		.on('jobcomplete', jobComplete);
+	require('./lib/https-proxy-server')(options);
+	require('./lib/http-proxy-server')(options);
 
-	require('./lib/http-proxy-server')(options)
-		.on('updateself', selfUpdate)
+	require('./lib/events')
 		.on('update', function (item) {
 			deploy(item, function () {
 				eventEmitter.emit('updated', item);
 			});
-		}).on('jobcomplete', jobComplete);
+		})
+		.on('jobcomplete', jobComplete);
 
 	console.log("listening for https on options.port ", options.https_port);
 	console.log("listening for http on options.port ", options.port);
