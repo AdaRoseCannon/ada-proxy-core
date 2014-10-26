@@ -53,17 +53,12 @@ module.exports = function(optionsIn, jobsArray) {
 				eventEmitter.emit('updated', item);
 			});
 		})
-		.on('jobcomplete', jobComplete);
+		.on('return', function (req, res, item) {
+			eventEmitter.emit('return', req, res, item);
+		});
 
 	console.log("listening for https on options.port ", options.https_port);
 	console.log("listening for http on options.port ", options.port);
-
-	function jobComplete(req, res, item) {
-		if (item.type === 'return') {
-			eventEmitter.emit('return', req, res, item);
-		}	
-	}
-
 
 	/**
 	 * Sync a folder using git & run install commands
