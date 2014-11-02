@@ -32,11 +32,13 @@ module.exports = function(optionsIn, jobsArray) {
 		hostnameOnly: true
 
 	}).on('error', function (err, req, res) {
-		res.writeHead(500, {
-			'Content-Type': 'text/plain'
-		});
-		res.write(err.message);
-		res.end('Oh dear!!');
+		if (res) {
+			res.writeHead(500, {
+				'Content-Type': 'text/plain'
+			});
+			res.write(err.message);
+			res.end();
+		}
 		console.log(err);
 	});
 
