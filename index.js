@@ -4,13 +4,15 @@
  * Dependencies.
  */
 
+require('es6-promise').polyfill();
+
 var httpProxy = require('http-proxy');
 var exec = require('child_process').exec;
 var git = require('gift');
 var jobs = require('./lib/jobs');
 var EventEmitter = require('events').EventEmitter;
 var options = require('./lib/options');
-require('es6-promise').polyfill();
+var deploy = require('./lib/deployFolder');
 
 module.exports = function(optionsIn, jobsArray) {
 	var eventEmitter = new EventEmitter();
@@ -22,6 +24,8 @@ module.exports = function(optionsIn, jobsArray) {
 	/**
 	 * Local Variables
 	 */
+
+	options.ssl_options = options.ssl_options || false;
 
 	options.proxy = httpProxy.createProxyServer({
 		ssl: options.ssl_options,
@@ -42,12 +46,15 @@ module.exports = function(optionsIn, jobsArray) {
 		console.log(err);
 	});
 
-	/**
-	 * Handling https proxy
-	 */
+	if (options.ssl_options && options.https_port) {
+		require('./lib/https-proxy-server')(options);
+		console.log("listening for https on options.port ", options.https_port);
+	}
 
-	require('./lib/https-proxy-server')(options);
-	require('./lib/http-proxy-server')(options);
+	if (options.port) {
+		require('./lib/http-proxy-server')(options);
+		console.log("listening for http on options.port ", options.port);
+	}
 
 	require('./lib/events')
 		.on('update', function (item) {
@@ -58,36 +65,6 @@ module.exports = function(optionsIn, jobsArray) {
 		.on('return', function (req, res, item) {
 			eventEmitter.emit('return', req, res, item);
 		});
-
-	console.log("listening for https on options.port ", options.https_port);
-	console.log("listening for http on options.port ", options.port);
-
-	/**
-	 * Sync a folder using git & run install commands
-	 * @return void
-	 */
-	function deploy(item, callback) {
-		var repo = git(item.deploy.folder);
-		repo.sync(function (err) {
-			if (err) {
-				console.log (err);
-				return;
-			}
-			if (item.deploy.run) {
-				var run = exec(item.deploy.run, {
-					cwd: item.deploy.folder
-				});
-				run.on('close', function (code) {
-					if (!code) {
-						console.log('Updated', item.deploy.folder, 'successfully');
-						if (callback) callback();
-					} else {
-						console.log('Deploy step failed.');
-					}
-				});
-			}
-		});
-	}
 
 	eventEmitter.updateJobs = jobs.setArray;
 	return eventEmitter;
