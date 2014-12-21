@@ -60,6 +60,7 @@ module.exports = function(optionsIn, jobsArray) {
 
 
 	self.httpMiddleware = function (req, res, next) {
+		console.log(req);
 		handler(req, res, next, false);
 	}
 
