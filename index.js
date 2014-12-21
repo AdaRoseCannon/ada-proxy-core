@@ -16,12 +16,14 @@ var deploy = require('./lib/deployFolder');
 var http = require('http');
 
 module.exports = function(optionsIn, jobsArray) {
+
 	var self = new EventEmitter();
 	options = options.init(optionsIn);
-	var handler = require('./lib/req-handler');
 
 	jobs.setArray(jobsArray);
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+	var handler = require('./lib/req-handler');
 
 	/**
 	 * Local Variables
@@ -60,7 +62,6 @@ module.exports = function(optionsIn, jobsArray) {
 
 
 	self.httpMiddleware = function (req, res, next) {
-		console.log(req);
 		handler(req, res, next, false);
 	}
 

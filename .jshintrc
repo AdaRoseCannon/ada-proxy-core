@@ -1,0 +1,14 @@
+{
+  "node": true,
+  "esnext": true,
+  "globals": {},
+  "globalstrict": true,
+  "undef": true,
+  "unused": true,
+  "white": true,
+  "strict": true,
+  "eqeqeq": true,
+  "newcap": true,
+  "noarg": true,
+  "globalstrict": true
+}
