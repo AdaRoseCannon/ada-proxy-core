@@ -13,10 +13,12 @@ var jobs = require('./lib/jobs');
 var EventEmitter = require('events').EventEmitter;
 var options = require('./lib/options');
 var deploy = require('./lib/deployFolder');
+var http = require('http');
 
 module.exports = function(optionsIn, jobsArray) {
-	var eventEmitter = new EventEmitter();
+	var self = new EventEmitter();
 	options = options.init(optionsIn);
+	var handler = require('./lib/req-handler');
 
 	jobs.setArray(jobsArray);
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -46,26 +48,37 @@ module.exports = function(optionsIn, jobsArray) {
 		console.log(err);
 	});
 
-	if (options.ssl_options && options.https_port) {
-		require('./lib/https-proxy-server')(options);
-		console.log("listening for https on options.port ", options.https_port);
-	}
-
-	if (options.port) {
-		require('./lib/http-proxy-server')(options);
-		console.log("listening for http on options.port ", options.port);
-	}
-
 	require('./lib/events')
 		.on('update', function (item) {
 			deploy(item, function () {
-				eventEmitter.emit('updated', item);
+				self.emit('updated', item);
 			});
 		})
 		.on('return', function (req, res, item) {
-			eventEmitter.emit('return', req, res, item);
+			self.emit('return', req, res, item);
 		});
 
-	eventEmitter.updateJobs = jobs.setArray;
-	return eventEmitter;
+
+	self.httpMiddleware = function (req, res, next) {
+		handler(req, res, next, false);
+	}
+
+	self.httpsMiddleware = function (req, res, next) {
+		handler(req, res, next, true);
+	}
+
+	self.updateJobs = jobs.setArray;
+
+	if (options.ssl_options && options.https_port) {
+		var server = options.spdy ? require('spdy') : require('https');
+		server.createServer(options.ssl_options, self.httpsMiddleware).listen(options.https_port);
+		console.log("listening for https on", options.https_port);
+	}
+
+	if (options.port) {
+		console.log("listening for http on", options.port);
+		http.createServer(self.httpMiddleware).listen(options.port);
+	}
+
+	return self;
 };
