@@ -8,9 +8,14 @@ module.exports = [{
 	rewriteURL: "/{{1}}",
 	target: path.join(__dirname, 'testResources'),
 	comment: "Simple static path"
-}, {
-	pattern: "^http://ada\\.is/(.*)",
+},{
+	pattern: "/redirect/(.*)",
 	type: "redirect",
 	target: "https://ada.is/{{1}}",
-	comment: "Redirect http to https"
+	comment: "Simple redirect"
+},{
+	type: "proxy",
+	pattern: "/proxy/(.*)",
+	target: "http://localhost:8081",
+	comment: "Proxy to the test server"
 }];

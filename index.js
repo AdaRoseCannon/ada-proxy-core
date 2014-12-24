@@ -7,8 +7,6 @@
 require('es6-promise').polyfill();
 
 var httpProxy = require('http-proxy');
-var exec = require('child_process').exec;
-var git = require('gift');
 var jobs = require('./lib/jobs');
 var EventEmitter = require('events').EventEmitter;
 var options = require('./lib/options');
@@ -33,11 +31,11 @@ module.exports = function(optionsIn, jobsArray) {
 
 	options.proxy = httpProxy.createProxyServer({
 		ssl: options.ssl_options,
+		secure: false,
+		hostnameOnly: true,
 
 		// SPDY-specific options
-		windowSize: 1024,
-		secure: false,
-		hostnameOnly: true
+		windowSize: 1024
 
 	}).on('error', function (err, req, res) {
 		if (res) {
