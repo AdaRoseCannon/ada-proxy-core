@@ -55,7 +55,11 @@ testReq
 	.get('/middleware/')
 	.expect(200)
 	.expect(function (res) {
-		return;
+		if (Number(res.headers["a-number"]) === 3) {
+			return;
+		} else {
+			throw Error("Expected header to equal 3 it was " + res.headers["a-number"]);
+		}
 	})
 	.end(function(err, res){
 		if (err) throw err;

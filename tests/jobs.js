@@ -5,7 +5,8 @@ var path = require('path');
 var i = 0;
 function middlewareFunc(req, res, next) {
 	setTimeout(function () {
-		console.log(++i);
+		console.log("Setting header to", ++i);
+		res.setHeader('A-Number', i);
 		next();
 	}, 500);
 }
