@@ -51,7 +51,19 @@ testReq
 		if (err) throw err;
 	});
 
+testReq
+	.get('/middleware/')
+	.expect(200)
+	.expect(function (res) {
+		return;
+	})
+	.end(function(err, res){
+		if (err) throw err;
+	});
+
 setTimeout(function () {
+
+	// Test that static works once a server has been instantiated
 	testReq
 		.get('/static/index.html')
 		.expect(200)
