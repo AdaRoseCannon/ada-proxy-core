@@ -7,6 +7,9 @@ function middlewareFunc(req, res, next) {
 	setTimeout(function () {
 		console.log("Setting header to", ++i);
 		res.setHeader('A-Number', i);
+		if (i === 3) {
+			res.end("Counted to " + i);
+		}
 		next();
 	}, 500);
 }
@@ -41,11 +44,13 @@ module.exports = [{
 	pattern: "/middleware/(.*)",
 	type: "middleware",
 	middleware: middlewareFunc,
-	comment: "Simple middleware"
+	comment: "Simple middleware this ends the request"
 },{
 	pattern: "/middleware/(.*)",
-	type: "static",
-	rewriteURL: "/{{1}}",
-	target: path.join(__dirname, 'testResources'),
-	comment: "Simple Response"
+	type: "middleware",
+	middleware: function () {
+		console.log('doing what musn\'t be done');
+		throw Error("This should not be run");
+	},
+	comment: "Simple middleware this ends the request"
 }];
