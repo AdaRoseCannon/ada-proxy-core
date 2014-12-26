@@ -15,6 +15,10 @@ function middlewareFunc(req, res, next) {
 }
 
 module.exports = [{
+	invalid: "entry",
+	this: "should",
+	be: "ignored"
+},{
 	pattern: "/static/(.*)",
 	type: "static",
 	rewriteURL: "/{{1}}",
