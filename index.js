@@ -46,6 +46,8 @@ module.exports = function(optionsIn, jobsArray) {
 			res.end();
 		}
 		console.log(err);
+	}).on('upgrade', function (req, socket, head) {
+		options.proxy.ws(req, socket, head);
 	});
 
 	require('./lib/events')
