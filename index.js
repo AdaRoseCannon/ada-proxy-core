@@ -63,16 +63,16 @@ module.exports = function(optionsIn, jobsArray) {
 
 	self.httpMiddleware = function (req, res, next) {
 		handler(req, res, next, false);
-	}
+	};
 
 	self.httpsMiddleware = function (req, res, next) {
 		handler(req, res, next, true);
-	}
+	};
 
 	self.updateJobs = jobs.setArray;
 
 	if (options.ssl_options && options.https_port) {
-		var server = options.spdy ? require('spdy') : require('https');
+		var server = options.http2 ? require('http2') : require('https');
 		server.createServer(options.ssl_options, self.httpsMiddleware).listen(options.https_port);
 		console.log("listening for https on", options.https_port);
 	}
