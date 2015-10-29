@@ -9,7 +9,7 @@
   "author": "Ada Rose Edwards",
   "license": "BSD",
   "dependencies": {
-    "es6-promise": "~1.0.0",
+    "es6-promise": "~3.0.2",
     "gift": "~0.4.2",
     "github-webhook-handler": "~0.2.1",
     "http-proxy": "^1.1.5",
